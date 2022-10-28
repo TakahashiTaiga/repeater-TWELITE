@@ -26,12 +26,6 @@ TXCOM_TYP txdata;
 uint8_t sbuf[]="TWE-CMD0-OK";
 uint8_t sbuf1[]="TWE-CMD1-OK";
 
-/*** Local function prototypes */
-void RcvData(uint8_t *b);
-uint8_t CalcSum(uint8_t *buf, uint8_t sz);
-void SerialTxSet(uint8_t cmd);
-
-
 /*** Config part */
 // application ID
 const uint32_t APP_ID = 0x1234abcd;
@@ -71,8 +65,9 @@ void setup() {
 	the_twelite.begin(); // start twelite!
 
 	// start the peripheral with 115200bps.
-    // Serial.begin(115200);
-	SerialParser.begin(PARSER::BINARY,128); //バイナリ形式を選択　128バイト分の領域を確保
+	//Serial.setup(64, 192);
+    Serial.begin(9600);
+	// SerialParser.begin(PARSER::BINARY,128); //バイナリ形式を選択　128バイト分の領域を確保
 }
 
 /*** loop procedure (called every event) */
@@ -103,7 +98,7 @@ void loop() {
 		
 		// Serial << '\n' << "parentID:parent01, " << "childID:" << msg << mwx::crlf;
 		// const char * sending_data = msg;
-		Serial << '\n' << msg << mwx::crlf << mwx::flush;;
+		Serial << '\n' << msg << mwx::crlf << mwx::flush;
 		
 		//Serial << '\n' << msg << mwx::crlf;
 	}
