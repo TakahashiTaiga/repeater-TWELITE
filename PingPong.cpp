@@ -2,30 +2,6 @@
 #include <TWELITE>
 #include <NWK_SIMPLE>
 
-
-#define BINARY_USE
-#define BUF_SZ 64
-#define HEADER1 0xA5
-#define HEADER2 0x5A
-#define HEADER3 0x80
-
-struct  COM_TYP{
-    uint8_t buf[BUF_SZ];
-};
-
-struct TXCOM_TYP{
-    uint8_t header[3];
-    uint8_t sz;
-    uint8_t buf[BUF_SZ];
-    uint8_t sum;
-};
-
-// application use
-COM_TYP rcvdata;
-TXCOM_TYP txdata;
-uint8_t sbuf[]="TWE-CMD0-OK";
-uint8_t sbuf1[]="TWE-CMD1-OK";
-
 /*** Config part */
 // application ID
 const uint32_t APP_ID = 0x1234abcd;
@@ -66,7 +42,7 @@ void setup() {
 
 	// start the peripheral with 115200bps.
 	//Serial.setup(64, 192);
-    Serial.begin(9600);
+    Serial.begin(115200);
 	// SerialParser.begin(PARSER::BINARY,128); //バイナリ形式を選択　128バイト分の領域を確保
 }
 
@@ -98,7 +74,7 @@ void loop() {
 		
 		// Serial << '\n' << "parentID:parent01, " << "childID:" << msg << mwx::crlf;
 		// const char * sending_data = msg;
-		Serial << '\n' << msg << mwx::crlf << mwx::flush;
+		Serial << msg << mwx::crlf << mwx::flush;
 		
 		//Serial << '\n' << msg << mwx::crlf;
 	}
