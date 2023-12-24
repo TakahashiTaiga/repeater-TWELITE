@@ -12,6 +12,9 @@ const uint8_t CHANNEL = 13;
 // DIO pins
 const uint8_t PIN_BTN = 12;
 
+// 割り込み用ピン
+const uint8_t INTERPUT_PIN = 5;
+
 /*** application defs */
 // packet message
 const int MSG_LEN = 10;
@@ -32,28 +35,20 @@ void setup() {
 	nwksmpl << NWK_SIMPLE::logical_id(0xFE) // set Logical ID. (0xFE means a child device with no ID)
 	        << NWK_SIMPLE::repeat_max(3);   // can repeat a packet up to three times. (being kind of a router)
 
-	// initialize the object. (allocate Tx/Rx buffer, and etc..)
-    // Serial.setup(64, 192);
-
 	/*** BEGIN section */
 	Analogue.begin(pack_bits(PIN_ANALOGUE::A1, PIN_ANALOGUE::VCC), 50); // _start continuous adc capture.
 
 	the_twelite.begin(); // start twelite!
 
+	// 割り込み用のピンは初期でHIGH
+	pinMode(INTERPUT_PIN, OUTPUT_INIT_LOW);
+
 	// start the peripheral with 115200bps.
-	//Serial.setup(64, 192);
     Serial.begin(115200);
-	// SerialParser.begin(PARSER::BINARY,128); //バイナリ形式を選択　128バイト分の領域を確保
 }
 
 /*** loop procedure (called every event) */
-void loop() {
-	/*
-	// Serial << "start" << mwx::crlf << mwx::flush;
-	const char * msg = "testtest1";
-	Serial << '\n' << msg << mwx::crlf << mwx::flush;;
-	*/
-	
+void loop() {	
 	// receive RF packet.
     while (the_twelite.receiver.available()) {
 		auto&& rx = the_twelite.receiver.read();
@@ -71,12 +66,23 @@ void loop() {
 				    , volt      // 2bytes, Module VCC[mV]
 					, timestamp // 4bytes of timestamp
         );
-		
-		// Serial << '\n' << "parentID:parent01, " << "childID:" << msg << mwx::crlf;
-		// const char * sending_data = msg;
-		Serial << msg << mwx::crlf << mwx::flush;
-		
-		//Serial << '\n' << msg << mwx::crlf;
-	}
-	
+
+		// 割り込み用ピンをLOWにする（スリープ割り込み用)
+		// digitalWrite(INTERPUT_PIN, LOW);
+		// 電源管理モジュール用
+		digitalWrite(INTERPUT_PIN, HIGH);
+
+		// 時間調整用
+		delay(1000);
+
+		// msgを5回送る
+		Serial << "..." << msg << ";" << msg << ";" << msg << ";" << msg << ";" << msg << ";,,," << mwx::crlf << mwx::flush;
+
+		// 割り込み用ピンをHIGHに戻す
+		// digitalWrite(INTERPUT_PIN, HIGH);
+		digitalWrite(INTERPUT_PIN, LOW);
+
+		// 複数種類のmsgを連投する時のためのdelay
+		delay(1000);
+	}	
 }
